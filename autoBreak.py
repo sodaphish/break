@@ -92,22 +92,22 @@ class DecoderThread(Thread):
             #print e.child().get_ip_src()
             ip = e.child()
             ttl = ip.get_ip_ttl()
-        ## Uneven but not 1 or 255 ttl means it's probably coming from a router ##
-        if (ttl % 2) > 0 and ttl > 1 and ttl != 255:
-            self.subnet.gatewaymac = e.get_ether_shost()
-            self.subnet.sourcemac = e.get_ether_dhost()
-            self.subnet.sourceaddress = ip.get_ip_dst()
+            ## Uneven but not 1 or 255 ttl means it's probably coming from a router ##
+            if (ttl % 2) > 0 and ttl > 1 and ttl != 255:
+                self.subnet.gatewaymac = e.get_ether_shost()
+                self.subnet.sourcemac = e.get_ether_dhost()
+                self.subnet.sourceaddress = ip.get_ip_dst()
 
         if e.get_ether_type() == impacket.ImpactPacket.ARP.ethertype:
             arp = e.child()
             self.subnet.registeraddress(arp.get_ar_tpa())
             self.subnet.registeraddress(arp.get_ar_spa())
           
-        if arp.get_op_name(arp.get_ar_op()) == "REPLY":
-            print "got arp reply"
-            self.arptable.registeraddress(arp.get_ar_spa(), arp.as_hrd(arp.get_ar_sha()))
-        if arp.get_op_name(arp.get_ar_op()) == "REQUEST":
-            self.arptable.registeraddress(arp.get_ar_spa(), arp.as_hrd(arp.get_ar_sha()))
+            if arp.get_op_name(arp.get_ar_op()) == "REPLY":
+                print "got arp reply"
+                self.arptable.registeraddress(arp.get_ar_spa(), arp.as_hrd(arp.get_ar_sha()))
+            if arp.get_op_name(arp.get_ar_op()) == "REQUEST":
+                self.arptable.registeraddress(arp.get_ar_spa(), arp.as_hrd(arp.get_ar_sha()))
 
 
 
