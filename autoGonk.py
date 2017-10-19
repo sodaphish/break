@@ -5,10 +5,12 @@ autoGonk -- testing out auto-determining which interfaces serve which function
 import sys
 from os import getuid
 from threading import Thread
+from ipaddress import IPv4Address
 
 try:
     import pcapy
-    from pcapy import findalldevs, open_live
+    from scapy.all import *
+    from pcapy import findalldevs, open_live, open_offline
     from impacket.ImpactDecoder import EthDecoder, LinuxSLLDecoder
 except ImportError as e:
     print("[E] %s" % e)
@@ -16,8 +18,6 @@ except ImportError as e:
 
 
 from break_config import *
-
-eapolType = int(0x888E)
 
 
 class PacketProcessor(Thread):
@@ -45,20 +45,6 @@ class PacketProcessor(Thread):
         frame = self.decoder.decode(data)
 
 
-class ArpTable():
-    arpTable = {}
-    pass
-
-
-class RouteTable():
-    routeTable = {}
-    pass
-
-
-class IP():
-    pass
-
-
 def getInterfaces(datalink=1, fil="eth"):
     '''
     returns a list of devices of the specified datalink type
@@ -82,18 +68,25 @@ if __name__ == "__main__":
     '''
     perform unit testing of our classes and functions
     '''
-
+    '''
+    print("[I] capturing on %s" % iface)
+    iface = getInterfaces(fil="en")[0]
+    print("[I] capturing on %s" % iface)
     if getuid() > 0:
         print "[E] you must be root"
         sys.exit(2)
 
-    iface = getInterfaces(fil="en")[0]
-
-    print("[I] capturing on %s" % iface)
-
     print("[I] quitting...")
     sys.exit()
+    '''
 
-    p = open_live('en0', 1500, 0, 100)
+    capfile = '/Users/sodaphish/Desktop/sample.pcapng'
+    a = rdpcap(capfile)
+    sessions = a.sessions()
 
-    PacketProcessor(p).start()
+    for session in sessions:
+        for pkt in sessions[session]:
+            try:
+                print pkt[ARP], pkt[ARP]
+            except:
+                pass
