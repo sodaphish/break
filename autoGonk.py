@@ -13,55 +13,64 @@ from os import getuid
 
 try:
     from scapy.all import *
+    from netaddr import *
 except ImportError as e:
     print("[E] %s" % e)
     sys.exit(2)
 
+ROOTUID = 100000
 
-class MACAddress():
-    oui = "00:00:00"
-    machine = "00:00:00"
+
+class Host():
+    ip = None
+    mac = None
     
-    def __init__(self):
-        pass
-
-class Victim():
-    def __init__(self,ip='0.0.0.0',mac='00:00:00:00:00:00'):
-        pass
+    def __init__(self,ip,mac):
+        try:
+            if not self.setIP(ip) or not self.setMAC(mac):
+                raise ValueError
+        except:
+            raise ValueError
     
     def setIP(self,ip='0.0.0.0'):
-        #validate IP -- don't allow RFC 3927 169.254/16 
-        pass
+        try:
+            self.ip = IPAddress(ip,4,0)
+        except Exception as e:
+            raise e
+        
+        if self.ip.is_ipv4_compat() and not self.ip.is_loopback():
+            return True
+        
+        return False
     
     def setMAC(self,mac='00:00:00:00:00:00'):
-        #validate MAC address, confirm its in the OUI database
-        pass
+        try:
+            self.mac = EUI(mac)
+        except Exception as e:
+            raise e
+       
+        if type(self.mac) in 'netaddr.eui.EUI':
+            return True
+        
+        return False
     
     def __repr__(self):
         pass
     
     
     
-class Gateway():
-    
-    def __init__(self,ip='0.0.0.0',mac='00:00:00:00:00:00'):
-        pass
-    
-    def setIP(self,ip='0.0.0.0'):
-        pass
-    
-    def setMAC(self,mac='00:00:00:00:00:00'):
-        pass
-    
-    def __repr__(self):
-        pass
+class Gateway(Host):
+    continue
+
+class Victim(Host):
+    continue
 
 
 
 if __name__ == "__main__":
     # TODO: this will eventually use a live capture, which will require root...
     
-    if getuid() > 0:
+    if getuid() > ROOTUID:
         print "[E] must be root!"
         sys.exit(2)
         
